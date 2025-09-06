@@ -1,10 +1,10 @@
-import React from 'react'
-import './ConnectWallet.css'
+import React from 'react';
+import './ConnectWallet.css';
 
 const ConnectWallet = ({ onConnect, networkError, onSwitchNetwork, onBack }) => {
   const walletOptions = [
     { name: 'Connect Wallet : METAMASK', icon: '🦊', primary: true }
-  ]
+  ];
 
   const features = [
     {
@@ -27,10 +27,16 @@ const ConnectWallet = ({ onConnect, networkError, onSwitchNetwork, onBack }) => 
       title: 'Verifiable Access',
       description: 'No hidden backdoors, access is cryptographically enforced.'
     }
-  ]
+  ];
 
   return (
     <div className="connect-wallet-page">
+      {/* Background animation layers */}
+      <div className="connect-wallet-bg"></div>
+      <div className="connect-wallet-bg2"></div>
+      <div className="connect-wallet-bg3"></div>
+
+      {/* Back button */}
       <div className="connect-header-bar">
         <button className="back-to-landing" onClick={onBack}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -40,7 +46,10 @@ const ConnectWallet = ({ onConnect, networkError, onSwitchNetwork, onBack }) => 
           Back to Landing
         </button>
       </div>
+
+      {/* Main container */}
       <div className="connect-container">
+        {/* Left panel */}
         <div className="connect-left">
           <div className="connect-header">
             <h2>Connect Your Wallet</h2>
@@ -68,7 +77,7 @@ const ConnectWallet = ({ onConnect, networkError, onSwitchNetwork, onBack }) => 
               <div className="warning-icon">⚠️</div>
               <p>Please switch to Sepolia testnet to continue</p>
               <button className="switch-network-btn" onClick={onSwitchNetwork}>
-                Switch to Sepolia
+                SWITCH TO SEPOLIA
               </button>
             </div>
           )}
@@ -89,6 +98,7 @@ const ConnectWallet = ({ onConnect, networkError, onSwitchNetwork, onBack }) => 
           </div>
         </div>
 
+        {/* Right panel */}
         <div className="connect-right">
           <h3>Why Connect Your Wallet?</h3>
           <div className="features-grid">
@@ -105,11 +115,12 @@ const ConnectWallet = ({ onConnect, networkError, onSwitchNetwork, onBack }) => 
         </div>
       </div>
 
+      {/* Credits */}
       <div className="connect-credits">
         Created by <span className="creator">Lies_Of_Code</span>
       </div>
     </div>
-  )
+  );
 }
 
-export default ConnectWallet
+export default ConnectWallet;

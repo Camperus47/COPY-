@@ -1,13 +1,44 @@
+/* Background animation layers */
 .connect-wallet-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a0a 100%);
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 40px 20px;
+  flex-direction: column;
   position: relative;
+  padding: 40px 20px;
 }
+
+.connect-wallet-bg,
+.connect-wallet-bg2,
+.connect-wallet-bg3 {
+  position: fixed;
+  top: 0;
+  left: -50%;
+  right: -50%;
+  bottom: 0;
+  z-index: -1; /* Behind all content */
+  opacity: 0.5;
+  background-image: linear-gradient(-60deg, rgb(255, 215, 0) 50%, rgb(0, 0, 0) 50%);
+  animation: slide 3s ease-in-out infinite alternate;
+}
+
+/* Reverse and different durations for multiple layers */
+.connect-wallet-bg2 {
+  animation-direction: alternate-reverse;
+  animation-duration: 4s;
+}
+
+.connect-wallet-bg3 {
+  animation-duration: 5s;
+}
+
+/* Keyframes for sliding animation */
+@keyframes slide {
+  0% { transform: translateX(-25%); }
+  100% { transform: translateX(25%); }
+}
+
 
 .connect-header-bar {
   position: absolute;
@@ -104,10 +135,11 @@
 }
 
 .install-metamask-btn {
-  background: linear-gradient(135deg, #ffc107, #ff9800);
-  color: #000;
+  background: linear-gradient(135deg, #5db6c8, #96ea99);
+  border: 2px solid white;
+  color: white;
   text-decoration: none;
-  padding: 10px 20px;
+  padding: 12px 24px;
   border-radius: 12px;
   font-weight: 700;
   font-size: 0.9rem;
@@ -115,11 +147,12 @@
   display: inline-block;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  margin-left: 55px;
 }
 
 .install-metamask-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(255, 193, 7, 0.3);
+  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
 }
 
 .network-warning {
@@ -136,20 +169,22 @@
 }
 
 .switch-network-btn {
-  background: linear-gradient(135deg, #ffc107, #ff9800);
-  color: #000;
-  border: none;
+  background: linear-gradient(135deg, #5db6c8, #96ea99);
+  color: #ffffff;
+  border: 2px solid white;
   padding: 12px 24px;
   border-radius: 12px;
+  font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
   margin-top: 12px;
+  letter-spacing: 0.5px;
 }
 
 .switch-network-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(255, 193, 7, 0.3);
+  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
 }
 
 .wallet-options {
@@ -173,19 +208,20 @@
 }
 
 .wallet-btn.primary {
-  background: linear-gradient(135deg, #ffd700, #ffb300);
-  color: #000;
+  background: linear-gradient(135deg, #5db6c8, #96ea99);
+  color: #ffffff;
   border-color: #ffd700;
   box-shadow: 
-    0 10px 30px rgba(255, 215, 0, 0.2),
+    0 10px 30px rgb(0, 204, 255),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    border: 2px solid white;
 }
 
 .wallet-btn.primary:hover {
   transform: translateY(-4px);
   box-shadow: 
-    0 20px 40px rgba(255, 215, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    0 20px 20px rgb(255, 255, 255),
+    inset 0 1px 0 rgb(0, 33, 133);
 }
 
 .wallet-btn.disabled {

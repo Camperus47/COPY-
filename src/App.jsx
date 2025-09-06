@@ -1,5 +1,8 @@
+// Import React hooks and necessary libraries
 import { useState, useEffect } from 'react'
 import { ethers } from 'ethers'
+
+// Import UI components
 import Header from './components/Header'
 import LandingPage from './components/LandingPage'
 import ConnectWallet from './components/ConnectWallet'
@@ -8,9 +11,11 @@ import FileManager from './components/FileManager'
 import PublicExplorer from './components/PublicExplorer'
 import ShareManager from './components/ShareManager'
 import ArrowAnimation from './components/ArrowAnimation'
+
+// Import main CSS
 import './App.css'
 
-// Contract ABI
+// Contract ABI: defines the functions and events of the smart contract
 const CONTRACT_ABI = [
   "function addFile(string memory _fileName, string memory _fileType, string memory _ipfsHash, uint256 _fileSize, bool _isPublic, string memory _description, string[] memory _tags) external",
   "function getMyFiles() external view returns (tuple(string fileName, string fileType, string ipfsHash, uint256 fileSize, uint256 uploadTime, address owner, bool isPublic, string description, string[] tags)[])",
@@ -31,7 +36,7 @@ const CONTRACT_ABI = [
   "event FileAccessRevoked(address indexed owner, address indexed user, uint256 indexed fileId)"
 ]
 
-// Sepolia testnet configuration
+// Sepolia testnet configuration for MetaMask network switching
 const SEPOLIA_CHAIN_ID = '0xaa36a7'
 const SEPOLIA_CONFIG = {
   chainId: SEPOLIA_CHAIN_ID,
@@ -46,33 +51,37 @@ const SEPOLIA_CONFIG = {
 }
 
 function App() {
-  const [account, setAccount] = useState("")
-  const [contract, setContract] = useState(null)
-  const [provider, setProvider] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [connected, setConnected] = useState(false)
-  const [activeTab, setActiveTab] = useState("upload")
-  const [contractAddress, setContractAddress] = useState("0x2662b183bC1883e15B8E4D1E8DE1Da5ca126A626")
-  const [networkError, setNetworkError] = useState(false)
-  const [showLanding, setShowLanding] = useState(true)
-  const [showDragon, setShowDragon] = useState(false)
-  const [dragonDirection, setDragonDirection] = useState('right')
+  // React state variables
+  const [account, setAccount] = useState("")           // currently connected wallet account
+  const [contract, setContract] = useState(null)       // ethers contract instance
+  const [provider, setProvider] = useState(null)       // ethers provider
+  const [loading, setLoading] = useState(true)         // loading state
+  const [connected, setConnected] = useState(false)    // wallet connection state
+  const [activeTab, setActiveTab] = useState("upload") // active dashboard tab
+  const [contractAddress, setContractAddress] = useState("0x2662b183bC1883e15B8E4D1E8DE1Da5ca126A626") // deployed contract address
+  const [networkError, setNetworkError] = useState(false) // if user is on wrong network
+  const [showLanding, setShowLanding] = useState(true)  // whether to show landing page
+  const [showDragon, setShowDragon] = useState(false)   // animation visibility flag
+  const [dragonDirection, setDragonDirection] = useState('right') // animation direction
 
+  // Function to trigger arrow/dragon transition animation
   const triggerDragonTransition = (direction = 'right') => {
-    setDragonDirection(direction)
-    setShowDragon(true)
-    setTimeout(() => setShowDragon(false), 2000)
+    setDragonDirection(direction)       // set animation direction
+    setShowDragon(true)                 // show animation
+    setTimeout(() => setShowDragon(false), 2000) // hide animation after 2 seconds
   }
 
+  // Handle tab change in dashboard
   const handleTabChange = (newTab) => {
-    triggerDragonTransition()
-    setTimeout(() => setActiveTab(newTab), 500)
+    triggerDragonTransition()           // trigger animation
+    setTimeout(() => setActiveTab(newTab), 500) // switch tab after animation
   }
 
+  // Logout function
   const handleLogout = () => {
-    triggerDragonTransition('left')
+    triggerDragonTransition('left')    // animation to left
     setTimeout(() => {
-      // Clear all wallet state
+      // Clear wallet and app state
       setConnected(false)
       setAccount("")
       setContract(null)
@@ -80,53 +89,49 @@ function App() {
       setActiveTab("upload")
       setShowLanding(true)
       
-      // Clear localStorage to prevent auto-reconnection
+      // Clear localStorage to prevent auto-reconnect
       localStorage.removeItem('walletConnected')
       localStorage.removeItem('connectedAccount')
       
-      // Disconnect from MetaMask if possible
+      // Attempt to disconnect from MetaMask (optional)
       if (window.ethereum && window.ethereum.selectedAddress) {
-        // Request account disconnection (not all wallets support this)
         try {
           window.ethereum.request({
             method: 'wallet_requestPermissions',
             params: [{ eth_accounts: {} }]
-          }).catch(() => {
-            // Ignore errors as not all wallets support this
-          })
-        } catch (error) {
-          // Ignore errors
-        }
+          }).catch(() => {})
+        } catch (error) {}
       }
     }, 1000)
   }
 
-  // Custom cursor effect
+  // Custom cursor effect using DOM manipulation
   useEffect(() => {
     const cursor = document.createElement('div')
-    cursor.className = 'cursor'
+    cursor.className = 'cursor'       // custom cursor div
     document.body.appendChild(cursor)
 
+    // Move cursor with mouse
     const moveCursor = (e) => {
       cursor.style.left = e.clientX - 10 + 'px'
       cursor.style.top = e.clientY - 10 + 'px'
     }
 
+    // Create wave effect on click
     const createWave = (e) => {
       const wave = document.createElement('div')
       wave.className = 'cursor-wave'
       wave.style.left = e.clientX - 20 + 'px'
       wave.style.top = e.clientY - 20 + 'px'
       document.body.appendChild(wave)
-      
-      setTimeout(() => {
-        document.body.removeChild(wave)
-      }, 600)
+      setTimeout(() => { document.body.removeChild(wave) }, 600)
     }
 
+    // Attach mouse event listeners
     document.addEventListener('mousemove', moveCursor)
     document.addEventListener('click', createWave)
 
+    // Cleanup listeners on unmount
     return () => {
       document.removeEventListener('mousemove', moveCursor)
       document.removeEventListener('click', createWave)
@@ -136,6 +141,7 @@ function App() {
     }
   }, [])
 
+  // Switch user MetaMask to Sepolia network
   const switchToSepolia = async () => {
     try {
       await window.ethereum.request({
@@ -162,6 +168,7 @@ function App() {
     }
   }
 
+  // Check if user is on correct network
   const checkNetwork = async () => {
     if (window.ethereum) {
       const chainId = await window.ethereum.request({ method: 'eth_chainId' })
@@ -175,6 +182,7 @@ function App() {
     return false
   }
 
+  // Connect wallet function
   const connectWallet = async () => {
     if (window.ethereum) {
       try {
@@ -192,7 +200,7 @@ function App() {
         setProvider(provider)
         setConnected(true)
         
-        // Store connection state
+        // Save connection info in localStorage
         localStorage.setItem('walletConnected', 'true')
         localStorage.setItem('connectedAccount', address)
         
@@ -210,6 +218,7 @@ function App() {
     setLoading(false)
   }
 
+  // Initialize contract with a given address
   const initializeContract = (address) => {
     if (provider && account) {
       const signer = provider.getSigner()
@@ -219,12 +228,13 @@ function App() {
     }
   }
 
+  // useEffect for app initialization
   useEffect(() => {
     const init = async () => {
       if (window.ethereum) {
         await checkNetwork()
         
-        // Only auto-connect if user was previously connected
+        // Auto-connect wallet if previously connected
         const wasConnected = localStorage.getItem('walletConnected')
         const savedAccount = localStorage.getItem('connectedAccount')
         
@@ -234,7 +244,6 @@ function App() {
             await connectWallet()
             setShowLanding(false)
           } else {
-            // Clear stale connection data
             localStorage.removeItem('walletConnected')
             localStorage.removeItem('connectedAccount')
             setLoading(false)
@@ -249,10 +258,11 @@ function App() {
     
     init()
 
+    // Listen to account and chain changes
     if (window.ethereum) {
       window.ethereum.on('accountsChanged', (accounts) => {
         if (accounts.length === 0) {
-          // Clear connection state when accounts are disconnected
+          // User disconnected accounts
           localStorage.removeItem('walletConnected')
           localStorage.removeItem('connectedAccount')
           setConnected(false)
@@ -260,7 +270,6 @@ function App() {
           setContract(null)
           setShowLanding(true)
         } else {
-          // Only reload if the account actually changed
           const savedAccount = localStorage.getItem('connectedAccount')
           if (savedAccount && accounts[0].toLowerCase() !== savedAccount.toLowerCase()) {
             localStorage.setItem('connectedAccount', accounts[0])
@@ -277,6 +286,7 @@ function App() {
     }
   }, [])
 
+  // Show loading spinner while initializing
   if (loading) {
     return (
       <div className="loading-container">
@@ -286,13 +296,16 @@ function App() {
     )
   }
 
+  // Show landing page if not yet entered
   if (showLanding) {
     return <LandingPage onEnter={() => setShowLanding(false)} />
   }
 
+  // Main app UI
   return (
     <div className="app">
       {!connected ? (
+        // Show connect wallet screen if not connected
         <ConnectWallet 
           onConnect={connectWallet}
           networkError={networkError}
@@ -301,6 +314,7 @@ function App() {
         />
       ) : (
         <>
+          {/* Header with account info and tabs */}
           <Header 
             account={account} 
             connected={connected} 
@@ -315,6 +329,7 @@ function App() {
           />
           
           <main className="main-content">
+            {/* Render different dashboard tabs based on activeTab */}
             {activeTab === "upload" && contract && (
               <FileUpload
                 account={account}
@@ -336,7 +351,7 @@ function App() {
             )}
           </main>
           
-          {/* Arrow Transition Animation */}
+          {/* Arrow/dragon transition animation */}
           {showDragon && (
             <ArrowAnimation direction={dragonDirection} />
           )}
@@ -346,4 +361,5 @@ function App() {
   )
 }
 
+// Export App component
 export default App
